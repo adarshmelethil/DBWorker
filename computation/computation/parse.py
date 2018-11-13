@@ -9,7 +9,7 @@ class ComputationTextError(Exception):
 
 def validLine(index, line):
 	line_split = line.split("=")
-	print(line, line_split)
+
 	if len(line_split) < 2:
 		raise ComputationTextError(
 			"Couldn't find '=': #{line_index}: '{line}'".format(
@@ -21,9 +21,20 @@ def validLine(index, line):
 
 	return line_split[0], line_split[1]
 
-def parseExpression(var_dict, expression):
+def validDBVar(var):
+	var_split = var.split(".")
 
-	for character in expression:
+def parseExpression(var_dict, expression):
+	vars = re.split('[^a-zA-Z\_1-9\.]', expression)
+	for v in vars:
+		try: 
+			value = float(vars)
+
+		except ValueError:
+	print(expression, vars)
+
+	return vars 
+	# for character in expression:
 
 
 # returns list of variables, and tree
@@ -37,19 +48,20 @@ def parseRawText(text):
 			continue
 		var, expression = validLine(i+1, clean_line)
 
-		parsed[var] = expression
+		new_exp = parseExpression(parsed, expression)
+		parsed[var] = new_exp
 
 	return parsed
 
 if __name__ == "__main__":
 	test_input = """
-a = 1
+a = 1.3
 
-b = 2
-
-c = a + b
+bb = 22
+k_k = a + bb + 4
+c = k_k / a + b * k_k
 """
 	try:
-		print(parseRawText(test_input))
+		print("ans", parseRawText(test_input))
 	except Exception as e:
 		print(e)
