@@ -1,10 +1,7 @@
 
 # import pyodbc
 
-try:
-	from data.database.base import BaseDatabase
-except ImportError:
-	from database.base import BaseDatabase
+from .base_database import BaseDatabase
 
 class MSAccess(BaseDatabase):
 	def __init__(self, location):
@@ -19,6 +16,7 @@ class MSAccess(BaseDatabase):
 		print("Not Implemented __exit__")
 		return None
 
+	# placeholder
 	def getTables(self):
 		tables_map = {
 			"table1": ["col1", "col2"],

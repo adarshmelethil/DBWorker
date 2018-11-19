@@ -2,10 +2,7 @@
 import os
 import sqlite3
 
-try:
-	from data.database.base import BaseDatabase
-except ImportError:
-	from database.base import BaseDatabase
+from .base_database import BaseDatabase
 	
 class SQLite(BaseDatabase):
 	def __init__(self, location):
@@ -40,18 +37,17 @@ if __name__ == "__main__":
 		print("db file not found")
 
 	db = SQLite(sys.argv[1])
-	print("Keys:", db.keys())
 	tables = db.getTables()
 	keys = list(tables.keys())
 	print("tables", tables)
-	print("exec", keys[0], db.getValuesFromTable(keys[0]))
-	ks = db.keys()
+	table_values = db.getValuesFromTable(keys[0])
+	print("values from table {t}".format(t=keys[0]))
+	print("resp", table_values)
+	
+	ks = table_values.keys()
 	print("Keys", ks)
-	print(db.history.keys())
-	print(ks[0])
-	print(ks[0] in db)
-	print("asdf" in db)
-	print(db[ks[0]])
+	print("datalen", table_values.getNumOfEntries())
+	
 	# if os.path.file 
 
 

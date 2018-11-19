@@ -1,11 +1,5 @@
 
-
 from PyQt5 import QtWidgets 
-
-try:
-	from computation.computationDisplay import ComputationDisplay
-except ImportError:
-	from computationDisplay import ComputationDisplay
 
 class ComputationEntry(QtWidgets.QWidget):
 	def __init__ (self, container, parent, name):

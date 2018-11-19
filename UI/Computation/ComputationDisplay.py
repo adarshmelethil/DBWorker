@@ -2,11 +2,6 @@
 
 from PyQt5 import QtWidgets
 
-try:
-	from computation.computation import parseRawText
-except ImportError:
-	from computation import parseRawText
-
 class ComputationDisplay(QtWidgets.QWidget):
 	def __init__(self, container, parent):
 		super(ComputationDisplay, self).__init__(container)
