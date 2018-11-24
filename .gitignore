@@ -1,5 +1,4 @@
 __pycache__
-test*.py
 test*.db
 .DS_Store
 build
