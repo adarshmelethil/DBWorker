@@ -200,16 +200,18 @@ _script_list = _ListDisplay(title_text="Scripts",
 _tab_display = _TabDisplay()
 
 # placeholder
-_t_r = _QtWidgets.QLabel("top right")
+_r_t = _QtWidgets.QLabel("right top")
+_r_b = _QtWidgets.QLabel("right bottom")
 _c = _QtWidgets.QLabel("center")
-_t_l = _QtWidgets.QLabel("top left")
-_b = _QtWidgets.QLabel("bottom")
+_l_t = _QtWidgets.QLabel("left top")
+_l_b = _QtWidgets.QLabel("left bottom")
 
 _main_widget = _MainWindow( 
-	top_left=_db_list,
-	top_center=_tab_display,
-	top_right=_t_r,
-	bottom=_b)
+	left_top=_db_list, 
+	left_bottom=_l_b, 
+	center=_tab_display, 
+	right_top=_script_list,
+	right_bottom=None)
 
 _height = 600
 _main_widget.setGeometry(200, 200, _height*(1+5**0.5)/2, _height)

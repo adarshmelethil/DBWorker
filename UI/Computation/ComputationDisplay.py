@@ -1,12 +1,10 @@
-
-
+import logging
 from PyQt5 import QtWidgets
 
 class ComputationDisplay(QtWidgets.QWidget):
-	def __init__(self, container, parent):
-		super(ComputationDisplay, self).__init__(container)
+	def __init__(self, parent=None):
+		super(ComputationDisplay, self).__init__(parent)
 
-		self.parent = parent
 		self.init_ui()
 
 	def init_ui(self):

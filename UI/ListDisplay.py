@@ -2,14 +2,14 @@ import logging
 from PyQt5 import QtWidgets
 
 class ListDisplay(QtWidgets.QWidget):
-	def __init__(self, title_text, new_callback, click_callback, parent=None):
+	def __init__(self, title_text, new_callback, click_callback, add_button=True, parent=None):
 		super(ListDisplay, self).__init__(parent)
 		self.logger = logging.getLogger(__name__)
 
 		self.title_text = title_text 
-		self.init_ui(new_callback, click_callback)
+		self.init_ui(new_callback, click_callback, add_button)
 
-	def init_ui(self, new_callback, click_callback):
+	def init_ui(self, new_callback, click_callback, add_button):
 		main_layout = QtWidgets.QVBoxLayout()
 
 		main_frame = QtWidgets.QFrame(self)
@@ -33,13 +33,14 @@ class ListDisplay(QtWidgets.QWidget):
 		# 		self.db_list.itemWidget(item)))
 		sub_layout.addWidget(self.db_list)
 
-		add_btn = QtWidgets.QPushButton("+")
-		add_btn.clicked.connect(new_callback)
-		btn_layout = QtWidgets.QHBoxLayout()
-		btn_layout.addStretch()
-		btn_layout.addWidget(add_btn)
-		btn_layout.addStretch()
-		sub_layout.addLayout(btn_layout)
+		if add_button:
+			add_btn = QtWidgets.QPushButton("+")
+			add_btn.clicked.connect(new_callback)
+			btn_layout = QtWidgets.QHBoxLayout()
+			btn_layout.addStretch()
+			btn_layout.addWidget(add_btn)
+			btn_layout.addStretch()
+			sub_layout.addLayout(btn_layout)
 
 		main_layout.addWidget(main_frame)
 		self.setLayout(main_layout)

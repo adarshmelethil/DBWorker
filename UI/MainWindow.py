@@ -3,13 +3,13 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 class MainWindow(QtWidgets.QWidget):
-	def __init__(self, top_left, top_center, top_right, bottom, parent=None):
+	def __init__(self, left_top, left_bottom, center, right_top, right_bottom, parent=None):
 		super(MainWindow, self).__init__(parent)
 		self.logger = logging.getLogger(__name__)
 		
-		self.init_ui(top_left, top_center, top_right, bottom)
+		self.init_ui(left_top, left_bottom, center, right_top, right_bottom)
 
-	def init_ui(self, top_left, top_center, top_right, bottom):
+	def init_ui(self, left_top, left_bottom, center, right_top, right_bottom):
 		main_layout = QtWidgets.QVBoxLayout()
 
 		main_frame = QtWidgets.QFrame(self)
@@ -17,16 +17,25 @@ class MainWindow(QtWidgets.QWidget):
 		sub_layout = QtWidgets.QHBoxLayout(main_frame)
 		
 		# hbox = QtWidgets.QHBoxLayout()
+		left_splitter = QtWidgets.QSplitter(Qt.Vertical)
+		if left_top is not None:
+			left_splitter.addWidget(left_top)
+		if left_bottom is not None:
+			left_splitter.addWidget(left_bottom)
 
-		horizontal_splitter = QtWidgets.QSplitter(Qt.Horizontal)
-		horizontal_splitter.addWidget(top_left)
-		horizontal_splitter.addWidget(top_center)
-		horizontal_splitter.addWidget(top_right)
+		right_splitter = QtWidgets.QSplitter(Qt.Vertical)
+		if right_top is not None:
+			right_splitter.addWidget(right_top)
+		if right_bottom is not None:
+			right_splitter.addWidget(right_bottom)
 
-		vertical_splitter = QtWidgets.QSplitter(Qt.Vertical)
-		vertical_splitter.addWidget(horizontal_splitter)
-		vertical_splitter.addWidget(bottom)
-		sub_layout.addWidget(vertical_splitter)
+		main_splitter = QtWidgets.QSplitter(Qt.Horizontal)
+		main_splitter.addWidget(left_splitter)
+		if center is not None:
+			main_splitter.addWidget(center)
+		main_splitter.addWidget(right_splitter)
+
+		sub_layout.addWidget(main_splitter)
 		
 		main_layout.addWidget(main_frame)
 		self.setLayout(main_layout)
