@@ -36,8 +36,9 @@ _db_list = None
 
 _scripts = []
 _script_list = None
-
 _tab_display = None
+_query_list = None 
+
 
 def _queryClicked(_query_entry):
 	_queries = _getQueries()
@@ -58,11 +59,16 @@ def _getQueries(_db_name=""):
 
 def _refreshQueries(_db_name):
 	_db_widget = _tab_display.getTabWithName("DB_{name}".format(name=_db_name))
-	_query_entries = [_QueryEntry(
+	_query_entries_1 = [_QueryEntry(
 		name=q_n, col_names=q_v.keys(), num_of_results=q_v.getNumOfEntries(), 
 		delete_callback=_deleteQuery, exec_callback=_execQuery) 
 	for q_n,q_v in _getQueries(_db_widget.name)]
-	_db_widget.updateQueries(_query_entries)
+	_query_entries_2 = [_QueryEntry(
+		name=q_n, col_names=q_v.keys(), num_of_results=q_v.getNumOfEntries(), 
+		delete_callback=_deleteQuery, exec_callback=_execQuery) 
+	for q_n,q_v in _getQueries(_db_widget.name)]
+	_db_widget.updateQueries(_query_entries_1)
+	_query_list.updateList(_query_entries_2)
 
 def _execQuery(_query_name):
 	_query_obj = eval(_query_name)
@@ -161,11 +167,11 @@ def _updateScript(_old_name, _new_name, location):
 def _newScript():
 	# db_form = _DatabaseFourm("", "", "", 
 	# 	_DB_TYPES.keys(), update_callback=_updateDatabase)
-	# db_form.show()
-	pass 
+	# db_form.show() 
 	# TODO - create new script, and replicate editing
 	# Add edit button to db
 	# save script, query, and db loading (session)
+	print("New Script")
 
 def _dbClick(_db_widget):
 	_db_detail = _DatabaseDisplay(
@@ -195,9 +201,13 @@ _db_list = _ListDisplay(title_text="Databases",
 	new_callback=_newDatabase,
 	click_callback=_dbClick)
 _script_list = _ListDisplay(title_text="Scripts", 
-	new_callback=_newDatabase,
-	click_callback=_dbClick)
+	new_callback=_newScript,
+	click_callback=_scriptClick)
 _tab_display = _TabDisplay()
+_query_list = _ListDisplay(title_text="Query Variables",
+	add_button=False,
+	new_callback=None,
+	click_callback=_queryClicked)
 
 # placeholder
 _r_t = _QtWidgets.QLabel("right top")
@@ -208,7 +218,7 @@ _l_b = _QtWidgets.QLabel("left bottom")
 
 _main_widget = _MainWindow( 
 	left_top=_db_list, 
-	left_bottom=_l_b, 
+	left_bottom=_query_list, 
 	center=_tab_display, 
 	right_top=_script_list,
 	right_bottom=None)
