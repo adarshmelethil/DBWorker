@@ -16,8 +16,6 @@ class DatabaseFourm(QtWidgets.QMainWindow):
 		self.init_ui()
 
 	def init_ui(self):
-		main_layout = QtWidgets.QVBoxLayout()
-
 		main_frame = QtWidgets.QFrame(self)
 		main_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
 		sub_layout = QtWidgets.QVBoxLayout(main_frame)
@@ -39,7 +37,7 @@ class DatabaseFourm(QtWidgets.QMainWindow):
 		location_layout.addWidget(self.location_input)
 		file_btn = QtWidgets.QPushButton("Open database")
 		file_btn.clicked.connect(
-			lambda:self.location_input.setText(
+			lambda:self.setLocation(
 				QtWidgets.QFileDialog.getOpenFileName(
 					self, 'Open database', os.getenv('HOME'))[0]))
 		location_layout.addWidget(file_btn)

@@ -1,6 +1,7 @@
 
-from .ComputationEntry import ComputationEntry
-from .ComputationDisplay import ComputationDisplay
+from .Entry import ComputationEntry
+from .Display import ComputationDisplay
+from .Fourm import ComputationFourm
 
 import logging
 import logging.config

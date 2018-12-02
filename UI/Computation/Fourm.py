@@ -4,7 +4,7 @@ from PyQt5 import QtWidgets
 
 class ComputationFourm(QtWidgets.QMainWindow):
 	def __init__(self, location, update_callback, parent=None):
-		super(DatabaseFourm, self).__init__(parent)
+		super(ComputationFourm, self).__init__(parent)
 		self.logger = logging.getLogger(__name__)
 
 		self.location = location 
@@ -13,42 +13,23 @@ class ComputationFourm(QtWidgets.QMainWindow):
 		self.init_ui()
 
 	def init_ui(self):
-		main_layout = QtWidgets.QVBoxLayout()
-
 		main_frame = QtWidgets.QFrame(self)
 		main_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
 		sub_layout = QtWidgets.QVBoxLayout(main_frame)
-
-		# name input
-		# name_layout = QtWidgets.QHBoxLayout()
-		# name_layout.addWidget(QtWidgets.QLabel("Name:"))
-		# self.name_input = QtWidgets.QLineEdit()
-		# self.name_input.setText(self.name)
-		# name_layout.addWidget(self.name_input)
-		# sub_layout.addLayout(name_layout)
 
 		# Location input
 		location_layout = QtWidgets.QHBoxLayout()
 		location_layout.addWidget(QtWidgets.QLabel("Location:"))
 
 		self.location_input = QtWidgets.QLineEdit()
-		self.location_input.setText(self.location)
+		self.setLocation(self.location)
 		location_layout.addWidget(self.location_input)
-		file_btn = QtWidgets.QPushButton("Open database")
+		file_btn = QtWidgets.QPushButton("Open Script")
 		file_btn.clicked.connect(
-			lambda:self.location_input.setText(
-				QtWidgets.QFileDialog.getOpenFileName(
-					self, 'Open database', os.getenv('HOME'))[0]))
+			lambda:self.setLocation(QtWidgets.QFileDialog.getOpenFileName(
+					self, 'Open Script', os.getenv('HOME'))[0]))
 		location_layout.addWidget(file_btn)
 		sub_layout.addLayout(location_layout)
-		
-		# self.db_types = QtWidgets.QComboBox()
-		# for t in self.all_db_types:
-		# 	self.db_types.addItem(t)
-		# if self.db_type in self.all_db_types:
-		# 	self.db_types.setCurrentIndex(
-		# 		self.db_types.findText(self.db_type))
-		# sub_layout.addWidget(self.db_types)
 
 		# Button - cancel
 		button_layout = QtWidgets.QHBoxLayout()
@@ -56,22 +37,19 @@ class ComputationFourm(QtWidgets.QMainWindow):
 		cancel_btn = QtWidgets.QPushButton("Cancel")
 		cancel_btn.clicked.connect(self.close)
 		button_layout.addWidget(cancel_btn)
-		# Button - Delete
-		delete_btn = QtWidgets.QPushButton("Delete")
-		delete_btn.clicked.connect(self.callDelete)
-		button_layout.addWidget(delete_btn)
+		# # Button - Delete
+		# delete_btn = QtWidgets.QPushButton("Delete")
+		# delete_btn.clicked.connect(self.callDelete)
+		# button_layout.addWidget(delete_btn)
 		# Button - update / add
 		update_btn = QtWidgets.QPushButton("Update")
 		update_btn.clicked.connect(self.callUpdate)
 		button_layout.addWidget(update_btn)
+		
 		sub_layout.addLayout(button_layout)
 
 		self.setCentralWidget(main_frame)
 		self.show()
-
-	def setName(self, name):
-		self.name = name 
-		self.name_input.setText(self.name)
 
 	def setLocation(self, location):
 		self.location = location
@@ -85,10 +63,8 @@ class ComputationFourm(QtWidgets.QMainWindow):
 		QtWidgets.QMessageBox.critical(self, "Failed to delete:", resp)
 
 	def callUpdate(self):
-		resp = self.update_callback(self.name, 
-			self.name_input.text(), 
-			self.location_input.text(),
-			self.db_types.currentText())
+		resp = self.update_callback(
+			self.location_input.text())
 		if not resp:
 			self.close()
 			return
@@ -108,5 +84,4 @@ if __name__=="__main__":
 	dbf.show()
 	
 	sys.exit(app.exec_())
-
 
