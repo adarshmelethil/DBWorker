@@ -2,7 +2,7 @@
 from .ListDisplay import ListDisplay
 from .TabDisplay import TabDisplay
 from .MainWindow import MainWindow
-
+from .LogDisplay import LogDisplay
 import logging
 import logging.config
 

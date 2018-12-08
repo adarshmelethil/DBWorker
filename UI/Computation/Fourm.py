@@ -37,10 +37,7 @@ class ComputationFourm(QtWidgets.QMainWindow):
 		cancel_btn = QtWidgets.QPushButton("Cancel")
 		cancel_btn.clicked.connect(self.close)
 		button_layout.addWidget(cancel_btn)
-		# # Button - Delete
-		# delete_btn = QtWidgets.QPushButton("Delete")
-		# delete_btn.clicked.connect(self.callDelete)
-		# button_layout.addWidget(delete_btn)
+		
 		# Button - update / add
 		update_btn = QtWidgets.QPushButton("Update")
 		update_btn.clicked.connect(self.callUpdate)
@@ -54,13 +51,6 @@ class ComputationFourm(QtWidgets.QMainWindow):
 	def setLocation(self, location):
 		self.location = location
 		self.location_input.setText(self.location)
-
-	def callDelete(self):
-		resp = self.update_callback(self.name,"","","")
-		if not resp:
-			self.close()
-			return
-		QtWidgets.QMessageBox.critical(self, "Failed to delete:", resp)
 
 	def callUpdate(self):
 		resp = self.update_callback(

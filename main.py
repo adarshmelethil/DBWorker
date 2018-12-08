@@ -38,7 +38,7 @@ _script_list = None # List UI
 _script_var_list = None # List UI
 
 _tab_display = None # Tab UI
-
+_log_display = None # Logging
 
 def _queryClicked(_query_entry):
 	_queries = _getQueries()
@@ -160,11 +160,21 @@ def _newDatabase():
 	_Database.DatabaseFourm("", "", "", 
 		_DB_TYPES.keys(), update_callback=_updateScript)
 
+def updateScript():
+	_script_list.updateList([_Computation.ComputationEntry(_s['location'], _deleteCompEntry) for _s in _scripts])
+
+def _deleteCompEntry(location):
+	for i, _s in enumerate(_scripts):
+		if _s['location'] == location:
+			del _scripts[i]
+			updateScript()
+			return
+
 def _makeNewScript(location):
 	_scripts.append({
 		"location": location,
 	})
-	_script_list.updateList([_Computation.ComputationEntry(_s['location']) for _s in _scripts])
+	updateScript()
 
 def _updateScript(location):
 	if not _os.path.isfile(location):
@@ -191,12 +201,21 @@ def _dbClick(_db_widget):
 	_openTab("DB_{name}".format(name=_db_widget.name), _db_detail)
 	_refreshQueries(_db_widget.name)
 
+def _runScript(content):
+	try:
+		exec(content)
+	except SyntaxError as se:
+		# _QtWidgets.QMessageBox.critical(None, "Failed to run script", "{}".format(se))
+		_log_display.addLogging("Failed to run script", "{}".format(se))
+
 def _scriptClick(_script_widget):
-	with open(_script_widget.getLocation()) as _file:
-		try:
-			exec(_file.read())
-		except SyntaxError as se:
-			_QtWidgets.QMessageBox.critical(None, "Failed to run script", "{}".format(se))
+	_openTab(
+		"Script_{name}".format(name=_script_widget.getName()), 
+		_Computation.ComputationDisplay(
+			_script_widget.getLocation(),
+			exec_callback=_runScript))
+	# ComputationDisplay
+	# print(_script_widget.getLocation())
 
 _db_list = _UI.ListDisplay(title_text="Databases", 
 	new_callback=_newDatabase,
@@ -215,19 +234,21 @@ _script_var_list = _UI.ListDisplay(title_text="Script Variables",
 	click_callback=None)
 
 _tab_display = _UI.TabDisplay()
-
+_log_display = _UI.LogDisplay()
 
 # placeholder
 _r_t = _QtWidgets.QLabel("right top")
 _r_b = _QtWidgets.QLabel("right bottom")
-_c = _QtWidgets.QLabel("center")
+_c_t = _QtWidgets.QLabel("center top")
+_c_b = _QtWidgets.QLabel("center bottom")
 _l_t = _QtWidgets.QLabel("left top")
 _l_b = _QtWidgets.QLabel("left bottom")
 
-_main_widget = _UI.MainWindow( 
-	left_top=_db_list, 
-	left_bottom=_query_list, 
-	center=_tab_display, 
+_main_widget = _UI.MainWindow(
+	left_top=_db_list,
+	left_bottom=_query_list,
+	center_top=_tab_display,
+	center_bottom=_log_display,
 	right_top=_script_list,
 	right_bottom=_script_var_list)
 
