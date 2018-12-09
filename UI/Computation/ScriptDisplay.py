@@ -1,9 +1,9 @@
 import logging
 from PyQt5 import QtWidgets
 
-class ComputationDisplay(QtWidgets.QWidget):
+class ScriptDisplay(QtWidgets.QWidget):
 	def __init__(self, location, exec_callback, parent=None):
-		super(ComputationDisplay, self).__init__(parent)
+		super(ScriptDisplay, self).__init__(parent)
 
 		self.location = location
 

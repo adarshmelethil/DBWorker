@@ -32,7 +32,6 @@ _databases = []
 _db_list = None # List UI
 _query_list = None # List UI
 
-
 _scripts = []
 _script_list = None # List UI
 _script_var_list = None # List UI
@@ -56,6 +55,9 @@ def _getQueries(_db_name=""):
 		return [(gk,gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is _Query and gv.db_name==_db_name]
 	else:
 		return [(gk,gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is _Query]
+
+def _getComputationVars():
+	return [(gk, gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is not _Query]
 
 def _refreshQueries(_db_name):
 	_db_widget = _tab_display.getTabWithName("DB_{name}".format(name=_db_name))
@@ -83,6 +85,7 @@ global {query_name}
 {query_name}=_query_res
 			'''.format(query_name=_query_name))
 			_refreshQueries(_db_name)
+			_query_names.append(_query_name)
 
 def _deleteQuery(_query_name):
 	_query_obj = eval(_query_name)
@@ -91,6 +94,7 @@ def _deleteQuery(_query_name):
 global {qname}
 del {qname}'''.format(qname=_query_name))
 	_refreshQueries(_db_name)
+	_query_names.remove(_query_name)
 
 def _addQuery(_db_name, _query_name, _query_str):
 	query = None
@@ -158,23 +162,23 @@ def _updateDatabase(_old_name, _new_name, _location, _db_type):
 
 def _newDatabase():
 	_Database.DatabaseFourm("", "", "", 
-		_DB_TYPES.keys(), update_callback=_updateScript)
+		_DB_TYPES.keys(), update_callback=_updateDatabase)
 
-def updateScript():
-	_script_list.updateList([_Computation.ComputationEntry(_s['location'], _deleteCompEntry) for _s in _scripts])
+def _refreshScriptList():
+	_script_list.updateList([_Computation.ScriptEntry(_s['location'], _deleteCompEntry) for _s in _scripts])
 
 def _deleteCompEntry(location):
 	for i, _s in enumerate(_scripts):
 		if _s['location'] == location:
 			del _scripts[i]
-			updateScript()
+			_refreshScriptList()
 			return
 
 def _makeNewScript(location):
 	_scripts.append({
 		"location": location,
 	})
-	updateScript()
+	_refreshScriptList()
 
 def _updateScript(location):
 	if not _os.path.isfile(location):
@@ -185,7 +189,7 @@ def _updateScript(location):
 	_makeNewScript(location)
 
 def _newScript():
-	_computation_form = _Computation.ComputationFourm("", 
+	_computation_form = _Computation.ScriptFourm("", 
 		update_callback=_updateScript)
 
 def _dbClick(_db_widget):
@@ -204,6 +208,14 @@ def _dbClick(_db_widget):
 def _runScript(content):
 	try:
 		exec(content)
+		_vars = _getComputationVars()
+		print("_vars:", _vars)
+		_script_var_list.updateList([
+			_QtWidgets.QLabel("{name} - #{length}".format(
+				name=k, 
+				length="/" if type(v) is not list else len(v))
+			) for k,v in _vars])
+
 	except SyntaxError as se:
 		# _QtWidgets.QMessageBox.critical(None, "Failed to run script", "{}".format(se))
 		_log_display.addLogging("Failed to run script", "{}".format(se))
@@ -211,11 +223,15 @@ def _runScript(content):
 def _scriptClick(_script_widget):
 	_openTab(
 		"Script_{name}".format(name=_script_widget.getName()), 
-		_Computation.ComputationDisplay(
+		_Computation.ScriptDisplay(
 			_script_widget.getLocation(),
 			exec_callback=_runScript))
-	# ComputationDisplay
+	# ScriptDisplay
 	# print(_script_widget.getLocation())
+
+def _openCompVars(comps_widget):
+	print(comps_widget.text())
+	# _openTab(ComputationDisplay()
 
 _db_list = _UI.ListDisplay(title_text="Databases", 
 	new_callback=_newDatabase,
@@ -231,7 +247,7 @@ _script_list = _UI.ListDisplay(title_text="Scripts",
 _script_var_list = _UI.ListDisplay(title_text="Script Variables",
 	add_button=False,
 	new_callback=None,
-	click_callback=None)
+	click_callback=_openCompVars)
 
 _tab_display = _UI.TabDisplay()
 _log_display = _UI.LogDisplay()

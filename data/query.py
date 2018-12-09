@@ -1,4 +1,7 @@
 
+import numpy as np
+import numbers
+
 class Query:
 	def __init__(self, query, data):
 		self.db_name = "not set"
@@ -21,7 +24,11 @@ class Query:
 			self.executeSelect(query_name)
 
 		col_index = self.col_names.index(column_name)
-		return [row[col_index] for row in self.data]
+
+		res_vals = [row[col_index] for row in self.data]
+		if len(res_vals) > 0 and isinstance(res_vals[0], numbers.Number):
+			return np.array(res_vals)
+		return res_vals
 
 	def __contains__(self, key):
 		return key in col_names

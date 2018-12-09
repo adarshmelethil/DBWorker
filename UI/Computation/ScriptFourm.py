@@ -2,9 +2,9 @@ import os
 import logging
 from PyQt5 import QtWidgets 
 
-class ComputationFourm(QtWidgets.QMainWindow):
+class ScriptFourm(QtWidgets.QMainWindow):
 	def __init__(self, location, update_callback, parent=None):
-		super(ComputationFourm, self).__init__(parent)
+		super(ScriptFourm, self).__init__(parent)
 		self.logger = logging.getLogger(__name__)
 
 		self.location = location 

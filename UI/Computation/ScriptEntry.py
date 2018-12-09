@@ -2,9 +2,9 @@
 import os
 from PyQt5 import QtWidgets 
 
-class ComputationEntry(QtWidgets.QWidget):
+class ScriptEntry(QtWidgets.QWidget):
 	def __init__ (self, location, delete_callback, parent=None):
-		super(ComputationEntry, self).__init__(parent)
+		super(ScriptEntry, self).__init__(parent)
 
 		self.location = location
 

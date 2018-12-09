@@ -1,7 +1,8 @@
 
-from .Entry import ComputationEntry
-from .Display import ComputationDisplay
-from .Fourm import ComputationFourm
+from .ScriptEntry import ScriptEntry
+from .ScriptDisplay import ScriptDisplay
+from .CompDisplay import ComputationDisplay
+from .ScriptFourm import ScriptFourm
 
 import logging
 import logging.config
