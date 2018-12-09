@@ -19,7 +19,7 @@ class ScriptDisplay(QtWidgets.QWidget):
 		self.text_area = QtWidgets.QTextEdit()
 		sub_layout.addWidget(self.text_area)
 
-		button_layout = QtWidgets.QHBoxLayout(main_frame)
+		button_layout = QtWidgets.QHBoxLayout()
 		load_button = QtWidgets.QPushButton("Load")
 		load_button.clicked.connect(self.load)
 		button_layout.addWidget(load_button)

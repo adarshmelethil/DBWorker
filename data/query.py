@@ -17,13 +17,10 @@ class Query:
 		if type(key) is not str:
 			raise KeyError("key needs to be a string, got '{}'".format(key)) 
 		
-		if query_name not in self.col_names:
+		if key not in self.col_names:
 			raise KeyError("{key} is not found in query".format(key=key))
 				
-		if not self.history[query_name]["ran"]:
-			self.executeSelect(query_name)
-
-		col_index = self.col_names.index(column_name)
+		col_index = self.col_names.index(key)
 
 		res_vals = [row[col_index] for row in self.data]
 		if len(res_vals) > 0 and isinstance(res_vals[0], numbers.Number):

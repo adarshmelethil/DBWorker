@@ -46,13 +46,13 @@ class DatabaseDisplay(QtWidgets.QWidget):
 		query_layout.addWidget(query_description, 0, 1)
 		
 		self.query_name = QtWidgets.QLineEdit()
-		self.query_input = QtWidgets.QLineEdit()
+		self.query_input = QtWidgets.QTextEdit()
 		query_add = QtWidgets.QPushButton("Add")
 		query_add.clicked.connect(
 			lambda: add_callback(
 				self.name,
 				self.query_name.text(),
-				self.query_input.text()))
+				self.query_input.toPlainText()))
 
 		query_layout.addWidget(self.query_name, 1, 0)
 		query_layout.addWidget(self.query_input, 1, 1)

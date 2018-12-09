@@ -1,6 +1,8 @@
 
 import os as _os
 import sys as _sys
+import traceback as _traceback
+import numpy as _np 
 
 import logging as _logging
 
@@ -205,20 +207,43 @@ def _dbClick(_db_widget):
 	_openTab("DB_{name}".format(name=_db_widget.name), _db_detail)
 	_refreshQueries(_db_widget.name)
 
-def _runScript(content):
+def _runScript(_content):
 	try:
-		exec(content)
+		exec(_content)
+		for lk,lv in locals().items():
+			if lk[0]!= "_":
+				globals()[lk] = lv
 		_vars = _getComputationVars()
-		print("_vars:", _vars)
-		_script_var_list.updateList([
-			_QtWidgets.QLabel("{name} - #{length}".format(
-				name=k, 
-				length="/" if type(v) is not list else len(v))
-			) for k,v in _vars])
+		# print("_vars:", _vars)
+		_qlabels_list = []
+		for _k,_v in _vars:
+			if type(_v) is list:
+				if len(_v) > 10:
+					_val = "list<{}>".format(len(_v))
+				else:
+					_val = "{}".format(_v)
+			elif type(_v) is _np.ndarray:
+				_toolarge = False
+				for _l in _v.shape:
+					if _l > 10:
+						_toolarge = True
+						break 
+				if _toolarge:
+					_val = "Matrix shape: {}".format(_v.shape)
+				else:
+					_val = "\n{}".format(_v)
+			else:
+				_val = "{}".format(_v)
 
-	except SyntaxError as se:
+			_qlabels_list.append(
+				_QtWidgets.QLabel("{name} - {val}".format(name=_k,val=_val)))
+
+		_script_var_list.updateList(_qlabels_list)
+
+	except Exception as _e:
 		# _QtWidgets.QMessageBox.critical(None, "Failed to run script", "{}".format(se))
-		_log_display.addLogging("Failed to run script", "{}".format(se))
+		_tb = _traceback.format_exc()
+		_log_display.addLogging("Failed to run script\n: {}".format(_tb))
 
 def _scriptClick(_script_widget):
 	_openTab(
