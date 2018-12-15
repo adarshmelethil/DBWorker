@@ -3,6 +3,7 @@ from .ScriptEntry import ScriptEntry
 from .ScriptDisplay import ScriptDisplay
 from .CompDisplay import ComputationDisplay
 from .ScriptFourm import ScriptFourm
+from .CompEntry import CompEntry
 
 import logging
 import logging.config

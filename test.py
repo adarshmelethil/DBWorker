@@ -14,13 +14,22 @@ class TestGui(QWidget):
 		self.sA.setLayout(self.sA_lay)
 		self.closeGui = QPushButton("Close")
 		self.add_file_button = QPushButton("Add File")
+		self.other_file_button = QPushButton("other File")
 		self.lay.addWidget(self.closeGui)
 		self.lay.addWidget(self.add_file_button)
+		self.lay.addWidget(self.other_file_button)
 		self.lay.addWidget(self.sA)
 		self.setLayout(self.lay)
 
 		self.connect_()
+		self.connect2()
 		self.show()
+
+	def connect2(self):
+		self.other_file_button.clicked.connect(self.other)
+
+	def other(self):
+		QFileDialog.getSaveFileName()
 
 	def connect_(self):
 		self.add_file_button.clicked.connect(self.__add_file_to_list)

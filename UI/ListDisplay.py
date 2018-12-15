@@ -2,14 +2,14 @@ import logging
 from PyQt5 import QtWidgets
 
 class ListDisplay(QtWidgets.QWidget):
-	def __init__(self, title_text, new_callback, click_callback, add_button=True, parent=None):
+	def __init__(self, title_text, click_callback, button_callback=None, button_text="+", parent=None):
 		super(ListDisplay, self).__init__(parent)
 		self.logger = logging.getLogger(__name__)
 
 		self.title_text = title_text 
-		self.init_ui(new_callback, click_callback, add_button)
+		self.init_ui(click_callback, button_callback, button_text)
 
-	def init_ui(self, new_callback, click_callback, add_button):
+	def init_ui(self, click_callback, button_callback, button_text):
 		main_layout = QtWidgets.QVBoxLayout()
 
 		main_frame = QtWidgets.QFrame(self)
@@ -33,9 +33,9 @@ class ListDisplay(QtWidgets.QWidget):
 		# 		self.db_list.itemWidget(item)))
 		sub_layout.addWidget(self.db_list)
 
-		if add_button:
-			add_btn = QtWidgets.QPushButton("+")
-			add_btn.clicked.connect(new_callback)
+		if button_callback:
+			add_btn = QtWidgets.QPushButton(button_text)
+			add_btn.clicked.connect(button_callback)
 			btn_layout = QtWidgets.QHBoxLayout()
 			btn_layout.addStretch()
 			btn_layout.addWidget(add_btn)

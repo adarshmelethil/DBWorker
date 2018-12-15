@@ -29,6 +29,7 @@ _app = _QtWidgets.QApplication(_sys.argv)
 # list<dict{
 # 	"info": dict{"name", "location", "db_type"},
 # 	"db_obj": database()
+# 	"queries": dict{"query_name": "query_string"}
 # }>
 _databases = []
 _db_list = None # List UI
@@ -41,6 +42,41 @@ _script_var_list = None # List UI
 _tab_display = None # Tab UI
 _log_display = None # Logging
 
+
+import pickle as _pickle
+from pathlib import Path as _Path
+_save_location = _os.path.join(str(_Path.home()), ".DBWork")
+def _saveSession():
+	if not _os.path.exists(_save_location):
+		_os.makedirs(_save_location)
+	with open(_os.path.join(_save_location, "databases"), "wb") as _output:
+		_pickle.dump(_databases, _output, _pickle.HIGHEST_PROTOCOL)
+	with open(_os.path.join(_save_location, "scripts"), "wb") as _output:
+		_pickle.dump(_scripts, _output, _pickle.HIGHEST_PROTOCOL)
+
+def _loadSession():
+	global _databases
+	if _os.path.isfile(_os.path.join(_save_location, "databases")):
+		with open(_os.path.join(_save_location, "databases"), "rb") as _input:
+			_databases = _pickle.load(_input)
+	global _scripts
+	if _os.path.isfile(_os.path.join(_save_location, "scripts")):
+		with open(_os.path.join(_save_location, "scripts"), "rb") as _input:
+			_scripts = _pickle.load(_input)
+
+	_refreshScriptList()
+	_db_list.updateList([_Database.DatabaseEntry(**d["info"]) for d in _databases]) 
+	for d in _databases:
+		for q_name, q_str in d["queries"].items():
+			_addQuery(d["info"]["name"], q_name, q_str)
+		_refreshQueries(d["info"]["name"])
+
+def _getQueries(_db_name=""):
+	if _db_name:
+		return [(gk,gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is _Query and gv.db_name==_db_name]
+	else:
+		return [(gk,gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is _Query]
+
 def _queryClicked(_query_entry):
 	_queries = _getQueries()
 	_query = None
@@ -52,26 +88,22 @@ def _queryClicked(_query_entry):
 	_query_display = _Database.QueryDisplay(col_names=_query.col_names, rows=_query.data)
 	_openTab("Query_{qname}".format(qname=_query_entry.name), _query_display)
 
-def _getQueries(_db_name=""):
-	if _db_name:
-		return [(gk,gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is _Query and gv.db_name==_db_name]
-	else:
-		return [(gk,gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is _Query]
-
 def _getComputationVars():
 	return [(gk, gv) for gk,gv in globals().items() if gk[0]!="_" and type(gv) is not _Query]
 
-def _refreshQueries(_db_name):
+def _refreshQueries(_db_name=""):
 	_db_widget = _tab_display.getTabWithName("DB_{name}".format(name=_db_name))
-	_query_entries_1 = [_Database.QueryEntry(
-		name=q_n, col_names=q_v.keys(), num_of_results=q_v.getNumOfEntries(), 
-		delete_callback=_deleteQuery, exec_callback=_execQuery) 
-		for q_n,q_v in _getQueries(_db_widget.name)]
+	if _db_widget is not None:
+		_query_entries_1 = [_Database.QueryEntry(
+			name=q_n, col_names=q_v.keys(), num_of_results=q_v.getNumOfEntries(), 
+			delete_callback=_deleteQuery, exec_callback=_execQuery) 
+			for q_n,q_v in _getQueries(_db_name)]
+		_db_widget.updateQueries(_query_entries_1)
+
 	_query_entries_2 = [_Database.QueryEntry(
 		name=q_n, col_names=q_v.keys(), num_of_results=q_v.getNumOfEntries(), 
 		delete_callback=_deleteQuery, exec_callback=_execQuery)
-		for q_n,q_v in _getQueries(_db_widget.name)]
-	_db_widget.updateQueries(_query_entries_1)
+		for q_n,q_v in _getQueries(_db_name)]
 	_query_list.updateList(_query_entries_2)
 
 def _execQuery(_query_name):
@@ -87,16 +119,17 @@ global {query_name}
 {query_name}=_query_res
 			'''.format(query_name=_query_name))
 			_refreshQueries(_db_name)
-			_query_names.append(_query_name)
 
 def _deleteQuery(_query_name):
 	_query_obj = eval(_query_name)
+	for _db in _databases:
+		if _db["info"]["name"] == _query_obj.db_name:
+			del _db["queries"][_query_name]
 	_db_name = _query_obj.db_name
 	exec('''
 global {qname}
 del {qname}'''.format(qname=_query_name))
 	_refreshQueries(_db_name)
-	_query_names.remove(_query_name)
 
 def _addQuery(_db_name, _query_name, _query_str):
 	query = None
@@ -109,6 +142,7 @@ global {query_name}
 {query_name}=_query
 			'''.format(query_name=_query_name))
 			_refreshQueries(_db["info"]["name"])
+			_db["queries"][_query_name] = _query_str
 
 def _openTab(_name, _widget):
 	_cur_names, _cur_widgets = _tab_display.getCurrentTabs()
@@ -118,7 +152,6 @@ def _openTab(_name, _widget):
 	_cur_widgets.append(_widget)
 	_tab_display.updateTabs(_cur_names, _cur_widgets)
 
-
 def _makeNewDatabase(_name, _location, _db_type):
 	_databases.append({
 		"info":{
@@ -126,14 +159,15 @@ def _makeNewDatabase(_name, _location, _db_type):
 			"location":_location,
 			"db_type":_db_type,
 		},
-		"db_obj": _getDatabase(db_type=_db_type, location=_location)
+		"db_obj": _getDatabase(db_type=_db_type, location=_location),
+		"queries": {}
 	})
 	_db_list.updateList([_Database.DatabaseEntry(**d["info"]) for d in _databases])
 	_logger.debug("Adding database: ({db_name})".format(db_name=_name))
 
 def _removeDatabase(_name):
 	for _i, _db in enumerate(_databases):
-		if _db.name == _name:
+		if _db["info"]["name"] == _name:
 			_logger.debug("Removing database: {name}".format(
 				name=_name))
 			del _databases[_i]
@@ -197,7 +231,7 @@ def _newScript():
 def _dbClick(_db_widget):
 	_db_detail = _Database.DatabaseDisplay(
 		name=_db_widget.name, location=_db_widget.location, db_type=_db_widget.db_type, 
-		item_callback=_queryClicked, add_callback=_addQuery)
+		item_callback=_queryClicked, add_callback=_addQuery, updateDatabase=_updateDatabase)
 	
 	for _db in _databases:
 		if _db["info"]["name"] == _db_widget.name:
@@ -214,36 +248,17 @@ def _runScript(_content):
 			if lk[0]!= "_":
 				globals()[lk] = lv
 		_vars = _getComputationVars()
-		# print("_vars:", _vars)
+
 		_qlabels_list = []
 		for _k,_v in _vars:
-			if type(_v) is list:
-				if len(_v) > 10:
-					_val = "list<{}>".format(len(_v))
-				else:
-					_val = "{}".format(_v)
-			elif type(_v) is _np.ndarray:
-				_toolarge = False
-				for _l in _v.shape:
-					if _l > 10:
-						_toolarge = True
-						break 
-				if _toolarge:
-					_val = "Matrix shape: {}".format(_v.shape)
-				else:
-					_val = "\n{}".format(_v)
-			else:
-				_val = "{}".format(_v)
-
 			_qlabels_list.append(
-				_QtWidgets.QLabel("{name} - {val}".format(name=_k,val=_val)))
+				_Computation.CompEntry(name=_k,val=_v))
 
 		_script_var_list.updateList(_qlabels_list)
 
 	except Exception as _e:
-		# _QtWidgets.QMessageBox.critical(None, "Failed to run script", "{}".format(se))
 		_tb = _traceback.format_exc()
-		_log_display.addLogging("Failed to run script\n: {}".format(_tb))
+		_log_display.addLogging("Failed to run script:\n {}".format(_tb))
 
 def _scriptClick(_script_widget):
 	_openTab(
@@ -251,27 +266,43 @@ def _scriptClick(_script_widget):
 		_Computation.ScriptDisplay(
 			_script_widget.getLocation(),
 			exec_callback=_runScript))
-	# ScriptDisplay
-	# print(_script_widget.getLocation())
+
+def _getComputationTab():
+	_comp_tab_name = "Computation"
+	_comp_tab = _tab_display.getTabWithName(_comp_tab_name)
+	if _comp_tab is None:
+		_comp_tab = _Computation.ComputationDisplay()
+		_tab_names, _tab_widgets = _tab_display.getCurrentTabs()
+		_tab_names.append(_comp_tab_name)
+		_tab_widgets.append(_comp_tab)
+		_tab_display.updateTabs(_tab_names, _tab_widgets)
+	return _comp_tab
 
 def _openCompVars(comps_widget):
-	print(comps_widget.text())
-	# _openTab(ComputationDisplay()
+	_var_name = comps_widget.name
+	_var_val = comps_widget.val
+	_comp_tab = _getComputationTab()
+	_comp_tab.setAddCol(_var_name, _var_val)
+
+def _showAllCompVars():
+	_vars = _getComputationVars()
+	_comp_tab = _getComputationTab()
+	_comp_tab.clearTable()
+	for _var_name, _var_val in _vars:
+		_comp_tab.setAddCol(_var_name, _var_val)
 
 _db_list = _UI.ListDisplay(title_text="Databases", 
-	new_callback=_newDatabase,
+	button_callback=_newDatabase,
 	click_callback=_dbClick)
 _query_list = _UI.ListDisplay(title_text="Query Variables",
-	add_button=False,
-	new_callback=None,
 	click_callback=_queryClicked)
 
 _script_list = _UI.ListDisplay(title_text="Scripts", 
-	new_callback=_newScript,
+	button_callback=_newScript,
 	click_callback=_scriptClick)
 _script_var_list = _UI.ListDisplay(title_text="Script Variables",
-	add_button=False,
-	new_callback=None,
+	button_text="Show All",
+	button_callback=_showAllCompVars,
 	click_callback=_openCompVars)
 
 _tab_display = _UI.TabDisplay()
@@ -293,8 +324,13 @@ _main_widget = _UI.MainWindow(
 	right_top=_script_list,
 	right_bottom=_script_var_list)
 
+_loadSession()
+
 _height = 600
 _main_widget.setGeometry(200, 200, _height*(1+5**0.5)/2, _height)
 _main_widget.setWindowTitle('Database Work')
 _main_widget.show()
-_sys.exit(_app.exec_())
+_exit_code = _app.exec_()
+_saveSession()
+_sys.exit(_exit_code)
+

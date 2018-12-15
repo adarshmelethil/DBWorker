@@ -3,18 +3,21 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtGui
 
 class LogDisplay(QtWidgets.QWidget):
-	def __init__ (self, parent=None):
+	def __init__ (self, title="Logs", parent=None):
 		super(LogDisplay, self).__init__(parent)
 
 		self.log = ""
-		self.init_ui()
+		self.init_ui(title)
 
-	def init_ui(self):
+	def init_ui(self, title):
 		main_layout = QtWidgets.QVBoxLayout()
 
 		main_frame = QtWidgets.QFrame(self)
 		main_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
 		sub_layout = QtWidgets.QVBoxLayout(main_frame)
+
+		title_label = QtWidgets.QLabel(title)
+		sub_layout.addWidget(title_label)
 
 		self.log_output = QtWidgets.QTextEdit()
 		self.log_output.moveCursor(QtGui.QTextCursor.End)

@@ -2,7 +2,7 @@ import logging
 from PyQt5 import QtWidgets 
 
 class DatabaseDisplay(QtWidgets.QWidget):
-	def __init__(self, name, db_type, location, item_callback, add_callback, parent=None):
+	def __init__(self, name, db_type, location, item_callback, add_callback, updateDatabase, parent=None):
 		super(DatabaseDisplay, self).__init__(parent)
 		self.logger = logging.getLogger(__name__)
 
@@ -12,9 +12,9 @@ class DatabaseDisplay(QtWidgets.QWidget):
 
 		self.parent = parent
 
-		self.init_ui(item_callback, add_callback)
+		self.init_ui(item_callback, add_callback, updateDatabase)
 
-	def init_ui(self, item_callback, add_callback):
+	def init_ui(self, item_callback, add_callback, updateDatabase):
 		main_layout = QtWidgets.QVBoxLayout()
 
 		main_frame = QtWidgets.QFrame(self)
@@ -57,8 +57,15 @@ class DatabaseDisplay(QtWidgets.QWidget):
 		query_layout.addWidget(self.query_name, 1, 0)
 		query_layout.addWidget(self.query_input, 1, 1)
 		query_layout.addWidget(query_add, 1, 4)
-
 		sub_layout.addLayout(query_layout)
+
+		button_layout = QtWidgets.QHBoxLayout()
+		delete_btn = QtWidgets.QPushButton("Delete")
+		delete_btn.clicked.connect(
+			lambda: updateDatabase(self.name, "", "", ""))
+		button_layout.addWidget(delete_btn)
+		button_layout.addStretch()
+		sub_layout.addLayout(button_layout)
 
 		sub_layout.addStretch()
 
