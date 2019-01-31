@@ -2,7 +2,8 @@
 
 import re
 import pyodbc
-import numpy 
+import numpy as np
+from terminaltables import SingleTable
 
 DB_FILE = r'N:\Data\DistributionSystem\DB_DistributionSystemInformation_Live_W7.mdb'
 
@@ -37,6 +38,19 @@ BP_CONSTANT = {
 }
 
 CALGARY_DS = "03-0032"
+
+def print_info(DS, INTs, loads, temps):
+  # DS, INTs, CLs, loads
+  table1 = [ ['Interconnection #', 'Split (%)', 'Weather Zone'] ] \
+  + [[INT[0], INT[1]*100, INT[2]] for INT in INTs] \
+  + [ ["Total Splits:", sum([INT[1] for INT in INTs]), ""] ]
+  print SingleTable(table1, title="Distribution System {0}".format(DS))
+  print
+
+  table2 = [ ['Temperature', 'Load(GJ/d)'] ] \
+  + zip(temps, loads) \
+  + [ ["Total Load:", sum(loads)] ]
+  print SingleTable(table2, title="Loads at Different Temperatures")
 
 def ds_checker(value):
   return re.search(r'^[0-9]{2}-[0-9]{4}$', value)
@@ -159,12 +173,6 @@ def ds_path(db_conn, db_north, db_south, DS):
 
   if len(INTs) == 0:
     raise DSNotFound()
-  elif len(INTs) > 1:
-    print "DS {} is an integrated system supplied by:".format(DS)
-    for INT in INTs:
-      print "INT {}".format(INT[0])
-  else:
-    print "DS {} is an isolated system supplied by INT {}".format(DS, INTs[0][0])
 
   if DS.startswith("01"):
     # North
@@ -205,6 +213,8 @@ Otherwise, these customers will be excluded and can be manually added later.
     if fqc.lower() == "y":
       loads += sum([customer["HUC 3-Year Peak Demand"] for customer in b_fqc])
       CLs += b_fqc
+
+  print_info(DS, INTs, loads, temps)
 
 def int_path(db_conn, db_north, db_south, INT):  
   DS, _ = find_ds_by_int(db_conn, INT)
@@ -249,7 +259,7 @@ if __name__ == "__main__":
       print "I don't think the interconnection number is correct"
       print "try again"
       continue 
-
+    break
   db_conn.close()
   db_north.close()
   db_south.close()
