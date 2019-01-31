@@ -90,6 +90,23 @@ FROM (tblInterconnections AS [INT] INNER JOIN tblOperatingSystem AS OS ON INT.As
 INNER JOIN tblDistributionSystems AS DS ON OS.[DS #] = DS.[DS Unique ID]
 WHERE (INT.[Interconnection#] = ?);'''
 
+
+"""
+SELECT 
+	OS.[DS #],
+	DS.[System Configuration]
+FROM 
+
+	tblInterconnections AS INT
+INNER JOIN tblOperatingSystem AS OS
+	ON INT.AssignedOperatingSystem = OS.[OS Unique ID]
+INNER JOIN tblDistributionSystems as DS
+	ON OS.[DS #] = DS.[DS Unique ID]
+
+WHERE
+	INT.[Interconnection#] = ?
+
+"""
 	cursor = con.cursor()
 	cursor.execute(query,intt)
 	row = cursor.fetchone()
@@ -171,11 +188,11 @@ WHERE assign.DS = ? and info.[Svc Pt Active] = ?;'''
 		return df
 		
 def check_rate(cl):
-	
 	normal_rate = ['LOW', 'MID', 'HIGH', None]
 	abnormal = []
 	
 	for i, customer in enumerate(cl):
+		# customer["Rate"] not in normal_rate
 		for k,v in customer.items():
 			if (k == "Rate") and (v not in normal_rate):
 				abnormal.append(cl[i].copy())
@@ -249,8 +266,7 @@ if __name__ == '__main__':
 	while True:
 		if option == '1':
 			intt = ''
-			print "\nLooks like you want to enter a DS #. If this is true, go ahead and enter it. \n\
-If you wanted to enter an INT #, then type 'no'"
+			print "\nLooks like you want to enter a DS #. If this is true, go ahead and enter it. \n\ If you wanted to enter an INT #, then type 'no'"
 			ds = str(raw_input("Enter DS # to continue or 'no' to go back: "))
 			if ds_checker(ds):
 				break
@@ -262,8 +278,7 @@ If you wanted to enter an INT #, then type 'no'"
 			
 		elif option == '2':
 			ds = ''
-			print "\nLooks like you want to enter an INT #. If this is true, go ahead and enter it. \n\
-If you wanted to enter a DS # instead, then type 'no'"
+			print "\nLooks like you want to enter an INT #. If this is true, go ahead and enter it. \n\If you wanted to enter a DS # instead, then type 'no'"
 			intt = str(raw_input("Enter INT # to continue or 'no' to go back: "))
 			if intt_checker(intt):
 				break
