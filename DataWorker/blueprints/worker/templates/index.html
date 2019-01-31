@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+  <!-- Bredcrumbs -->
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="/">Dashboard</a>
+    </li>
+
+    <li class="breadcrumb-item active">{% block title %}Index{% endblock %}</li>
+  </ol>
+
+  <div class="row mb-2">
+    <div class="col-md-6">
+      <div class="card flex-md-row mb-4 box-shadow h-md-250">
+        <div class="card-body d-flex flex-column align-items-start">
+          <strong class="d-inline-block mb-2 text-primary">Info</strong>
+
+          <form>
+            <div class="form-group">
+              <label for="DSorINT">Distribution System(DS) or Interconnection Number(INT)</label>
+              <div class="row">
+                <div class="col-6">
+                  <input class="form-control" type="text" id="DSorINT" placeholder="12-1234 or 12345" oninput="validateInput()">
+                </div>
+                <div class="col-6">
+                  <div class="alert alert-primary" id="validateMessage">Required</div>
+                </div>
+              </div>
+            </div>
+            <div class="d-flex flex-row-reverse">
+              <div class="p-6">
+                <button class="btn btn-primary" type="submit">Submit</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>  
+    </div>
+
+    <div class="col-md-6">
+      <div class="card flex-md-row mb-4 box-shadow h-md-250">
+        <div class="card-body d-flex flex-column align-items-start">
+          <strong class="d-inline-block mb-2 text-success">Data</strong>
+
+          <p>Data Card</p>
+        </div>
+      </div> 
+    </div>
+  </div>
+  <script>
+    function validateInput(){
+      $("#validateMessage").
+          removeClass("alert-primary").
+          removeClass("alert-success").
+          removeClass("alert-danger");
+
+      var inputText = $("#DSorINT").val();
+
+      if (inputText == "") {
+        $("#validateMessage").addClass("alert-primary");
+        $("#validateMessage").text("Required");
+        return
+      }
+
+      var val = validDSorINT(inputText);
+      if (val == "DS") {
+        $("#validateMessage").addClass("alert-success");
+        $("#validateMessage").text("Valid DS");
+      }else if (val == "INT") {
+        $("#validateMessage").addClass("alert-success");
+        $("#validateMessage").text("Valid INT");
+      }else {
+        $("#validateMessage").addClass("alert-danger");
+        $("#validateMessage").text("Invalid");
+      }
+    }
+    function validDSorINT(val) {
+      var validDS = /^[0-9]{2}-[0-9]{4}$/g;
+      var validINT = /^[0-9]{5}$/g;
+
+      if (val.match(validDS)) {
+        return "DS";
+      } else if (val.match(validINT)) {
+        return "INT";
+      }
+      return null;
+    }
+
+    // function submitRequest() {
+    //   $.ajax({
+    //     type: "POST",
+    //     url: "<?php echo base_url(); ?>contents/hello",
+    //     data: "id=" + a_href,
+    //     success: function(data, textStatus) {
+    //         $(".result").html(data);    
+    //     },
+    //     error: function() {
+    //         alert('Not OKay');
+    //     }
+    // });​
+    // }
+  </script>
+  
+  
+{% endblock %}

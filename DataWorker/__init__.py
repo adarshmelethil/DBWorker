@@ -1,4 +1,4 @@
-from flask import Flask 
+from flask import Flask
 from . import db
 
 
@@ -12,7 +12,9 @@ def create_app():
   db.init_app(app)
 
   # Blueprints
-  from DataWorker.blueprints import auth 
+  from DataWorker.blueprints import auth, worker
   app.register_blueprint(auth.bp)
+  app.register_blueprint(worker.bp)
+  app.add_url_rule('/', endpoint='index')
 
   return app
