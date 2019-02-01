@@ -59,9 +59,7 @@ CALGARY_DS = "03-0032"
 
 def print_info(DS, INTs, loads, temps):
   # DS, INTs, CLs, loads
-  INTs = [[INT[0], INT[1], INT[2]] for INT in INTs]
-  if INTs[0][1] is None:
-    INTs[0][1] = 0
+  INTs = [[INT[0], INT[1] if INT[1] else 0, INT[2]] for INT in INTs]
     
   table1 = [ ['Interconnection #', 'Split (%)', 'Weather Zone'] ] \
   + [[INT[0], INT[1]*100, INT[2]] for INT in INTs] \
